@@ -1,0 +1,38 @@
+asset: tileable brick ground textures
+author: Cethiel
+Link:  https://opengameart.org/content/tileable-bricks-ground-textures-set-1
+
+
+
+asset: Pixel Castle 2D	(background)
+author: Szadi art
+Link: https://szadiart.itch.io/pixel-fantasy-caves
+
+
+
+asset: metroidvania asset pack 	(hero & goblins)
+author: o_lobster
+Link: https://o-lobster.itch.io/platformmetroidvania-pixel-art-asset-pack
+
+
+
+asset:  Sound Effects
+author: Little Robot Sound Factory
+Link: [1] https://freesound.org/people/LittleRobotSoundFactory/sounds/				misc effects
+author: 8 Bit Universe
+	  [2] https://www.youtube.com/watch?v=KV4CQjfndqQ&ab_channel=8BitUniverse		background music
+
+
+
+MINE: made using https://www.piskelapp.com/p/create/sprite
+		projectile
+		melee
+		Spikes
+		door
+		KEY
+		HEARTS
+		Princess
+		Willy - I recoloured billy using this app
+		
+Start Screen: Billy, Willy, and the Goblins are resized from the metroidvania asset pack. 
+				The princess, start button, and black background are my work.
