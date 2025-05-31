@@ -74,6 +74,7 @@ public class MainWindow {
 
 
 	public static void main(String[] args) {
+		System.out.println("Current working directory: " + System.getProperty("user.dir"));
 		MainWindow hello = new MainWindow();  //sets up environment 
 		while(true)   //not nice but remember we do just want to keep looping till the end.  // this could be replaced by a thread but again we want to keep things simple 
 		{ 
