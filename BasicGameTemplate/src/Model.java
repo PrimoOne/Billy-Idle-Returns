@@ -395,7 +395,6 @@ public class Model {
 	}
 
 	private void enemyLogic() {
-		// TODO Auto-generated method stub
 		
 		for (GameObject enemy : EnemiesList) 
 		{																										// Enemy Pathing Logic
