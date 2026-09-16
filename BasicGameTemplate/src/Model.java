@@ -1,23 +1,8 @@
-import java.util.ArrayList;
-import java.util.Date;
-import java.awt.Image;
-import java.awt.Rectangle;
 import java.io.File;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.io.*;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.*;
-import javax.swing.JOptionPane;
-import javax.imageio.ImageIO;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.awt.MouseInfo;
 import util.GameObject;
 import util.Point3f;
 import util.Vector3f; 
@@ -25,14 +10,12 @@ import util.Vector3f;
 
 public class Model {
 	
-	 private  GameObject Player;
-	 private Controller controller = Controller.getInstance();															///Bunch of variables for use throughout
+	 private  GameObject Player;														///Bunch of variables for use throughout
 	 private CopyOnWriteArrayList<GameObject> EnemiesList  = new CopyOnWriteArrayList<GameObject>();
 	 private CopyOnWriteArrayList<GameObject> BulletList  = new CopyOnWriteArrayList<GameObject>();
 	 private CopyOnWriteArrayList<GameObject> SwordList  = new CopyOnWriteArrayList<GameObject>();
 	 private CopyOnWriteArrayList<GameObject> TilesList = new CopyOnWriteArrayList<GameObject>();
 	 private CopyOnWriteArrayList<GameObject> SpikeList = new CopyOnWriteArrayList<GameObject>();
-	 private CopyOnWriteArrayList<GameObject> HeartList = new CopyOnWriteArrayList<GameObject>();
 	 private CopyOnWriteArrayList<GameObject> SignList = new CopyOnWriteArrayList<GameObject>();
 	 private CopyOnWriteArrayList<GameObject> GemList = new CopyOnWriteArrayList<GameObject>();
 	

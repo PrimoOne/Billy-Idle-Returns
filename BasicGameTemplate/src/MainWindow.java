@@ -1,7 +1,4 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Image;
-import java.awt.MouseInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
@@ -14,7 +11,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import util.UnitTests;
 
@@ -75,7 +71,14 @@ public class MainWindow {
 
 	public static void main(String[] args) {
 		System.out.println("Current working directory: " + System.getProperty("user.dir"));
-		MainWindow hello = new MainWindow();  //sets up environment 
+
+		/////////////////////////////////////////////////////////////////
+		// DO NOT DELETE THIS LINE DESPITE THE FACT THAT IT LOOKS LIKE IT DOES NOTHING
+		// IT ACTUALLY INITIALIZES THE GAMEWORLD AND IS REQUIRED FOR THE WINDOW TO OPEN
+		// LOL
+		MainWindow hello = new MainWindow();
+		/////////////////////////////////////////////////////////////////
+		/// 
 		while(true)   //not nice but remember we do just want to keep looping till the end.  // this could be replaced by a thread but again we want to keep things simple 
 		{ 
 			//swing has timer class to help us time this but I'm writing my own, you can of course use the timer, but I want to set FPS and display it 

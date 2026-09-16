@@ -1,23 +1,11 @@
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.LayoutManager;
-import java.awt.Rectangle;
-import java.awt.TexturePaint;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalTime;
-import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import javax.swing.Timer;
-
-import util.GameObject;
-import java.time.LocalTime;
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class Viewer extends JPanel {
 	private long CurrentAnimationTime= 0; 
@@ -25,28 +13,23 @@ public class Viewer extends JPanel {
 	 
 	public Viewer(Model World) {
 		this.gameworld=World;
-		// TODO Auto-generated constructor stub
 	}
 
 	public Viewer(LayoutManager layout) {
 		super(layout);
-		// TODO Auto-generated constructor stub
 	}
 
 	public Viewer(boolean isDoubleBuffered) {
 		super(isDoubleBuffered);
-		// TODO Auto-generated constructor stub
 	}
 
 	public Viewer(LayoutManager layout, boolean isDoubleBuffered) {
 		super(layout, isDoubleBuffered);
-		// TODO Auto-generated constructor stub
 	}
 
 	public void updateview() {
 		
 		this.repaint();
-		// TODO Auto-generated method stub
 		
 	}
 	
@@ -127,7 +110,6 @@ public class Viewer extends JPanel {
 			//}
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -142,7 +124,6 @@ public class Viewer extends JPanel {
 			//}
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -159,7 +140,6 @@ public class Viewer extends JPanel {
 			//}
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -174,7 +154,6 @@ public class Viewer extends JPanel {
 			 g.drawImage(myImage, x,y, x+width, y+height, 0 , 0, 15, 17, null); 
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -192,7 +171,6 @@ public class Viewer extends JPanel {
 			g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , 0, currentPositionInAnimation+15, 16, null); 
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		
@@ -219,7 +197,6 @@ public class Viewer extends JPanel {
 			 g.drawImage(myImage, 0,0,300, 300, 0 , 0, 100, 100, null); 
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -233,7 +210,6 @@ public class Viewer extends JPanel {
 			 g.drawImage(myImage, 0,0,1000, 1000, 0 , 0, 1000, 900, null); 
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -251,7 +227,6 @@ public class Viewer extends JPanel {
 			//}
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -267,7 +242,6 @@ public class Viewer extends JPanel {
 			 g.drawImage(myImage, x,y, x+width, y+height, 0 , 0, 31, 7, null); 
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -336,7 +310,6 @@ public class Viewer extends JPanel {
 			g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , 0, currentPositionInAnimation+15, 16, null); 
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		

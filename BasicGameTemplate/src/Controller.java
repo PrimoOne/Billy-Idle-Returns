@@ -1,10 +1,5 @@
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.awt.MouseInfo;
-import java.util.concurrent.TimeUnit;
 
 import java.util.Timer;
 
@@ -20,7 +15,6 @@ public class Controller implements KeyListener {
 	   private static boolean KeyQPressed= false;
 	   private static boolean KeyEPressed= false;
 	   private static boolean KeySpacePressed= false;
-	   private static boolean MB1Pressed = false;
 	   public long lastpressed=0;
 	   Timer timer = new Timer();
 	   private static final Controller instance = new Controller();
