@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 
 public class Viewer extends JPanel {
 	private long CurrentAnimationTime= 0; 
-	Model gameworld =new Model(); 
+	Model gameworld; 
 	 
 	public Viewer(Model World) {
 		this.gameworld=World;

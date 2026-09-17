@@ -71,6 +71,9 @@ public class MainWindow {
 
 	public static void main(String[] args) {
 		System.out.println("Current working directory: " + System.getProperty("user.dir"));
+		// UPDATE STRING TO CHECK IF RUNNING LATEST COMPILED GAME
+		System.out.println("BUILD TEST: 123 ");
+		// --------------------------------------------------------------
 
 		/////////////////////////////////////////////////////////////////
 		// DO NOT DELETE THIS LINE DESPITE THE FACT THAT IT LOOKS LIKE IT DOES NOTHING

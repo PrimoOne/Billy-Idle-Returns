@@ -1,7 +1,14 @@
 {
-    "java.project.sourcePaths": ["src"],
-    "java.project.outputPath": "bin",
+    "java.project.sourcePaths": ["BasicGameTemplate/src"],
+    "java.project.outputPath": "BasicGameTemplate/bin",
     "java.project.referencedLibraries": [
         "lib/**/*.jar"
+    ],
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-21",
+            "path": "C:\\Users\\pgawk\\.vscode\\extensions\\redhat.java-1.56.0-win32-x64\\jre\\21.0.12.1-win32-x86_64",
+            "default": true
+        }
     ]
 }
