@@ -538,26 +538,20 @@ public class Model {
 	//##################################################################################################################################################################
 
 	private void playerLogic() {
-		//Player hitting the bottom of the screen
-		// if(gameWorld.getPlayer().getCentre().getY() > 890 && playinglevel3==false && GameOver==false) {
-		// gameWorld.getPlayer().setCentre(new Point3f(10,850,0));
-		// gameWorld.getPlayer().setVelocityY(0.0f);
-		// Lives--;
-		// PlaySound(billyhit, -15.0f, 10000);
-		// }		
+	
 		if(gameWorld.getPlayer().getCentre().getY() > 890 && playinglevel3==true && GameOver==false) {														//Special condition for lvl 3
-		gameWorld.getPlayer().setCentre(new Point3f(10, 110, 0));
-		gameWorld.getPlayer().setVelocityY(0.0f);
-		Lives--;
-		PlaySound(billyhit, -15.0f, 10000);
+			gameWorld.getPlayer().setCentre(new Point3f(10, 110, 0));
+			gameWorld.getPlayer().setVelocityY(0.0f);
+			Lives--;
+			PlaySound(billyhit, -15.0f, 10000);
 		}
 	
 		boolean spacePressed = Controller.getInstance().isKeySpacePressed();
 		boolean jumpPressed = spacePressed && !spaceWasPressed;
 		if(jumpPressed && grounded) {
-			gameWorld.getPlayer().setVelocityY(20.0f);
+			gameWorld.getPlayer().setVelocityY(GameConstants.JUMP_VELOCITY);
 		}
-		gameWorld.getPlayer().setVelocityY(gameWorld.getPlayer().getVelocityY() - 1.0f);
+		gameWorld.getPlayer().setVelocityY(gameWorld.getPlayer().getVelocityY() - GameConstants.GRAVITY);
 		gameWorld.getPlayer().getCentre().ApplyVector(new Vector3f(0, gameWorld.getPlayer().getVelocityY(), 0));
 		spaceWasPressed = spacePressed;
 	
