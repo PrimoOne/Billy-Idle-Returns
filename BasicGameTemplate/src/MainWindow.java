@@ -72,7 +72,7 @@ public class MainWindow {
 	public static void main(String[] args) {
 		System.out.println("Current working directory: " + System.getProperty("user.dir"));
 		// UPDATE STRING TO CHECK IF RUNNING LATEST COMPILED GAME
-		System.out.println("BUILD TEST: 123 ");
+		System.out.println("VERSION CONTROL: 333333333333333333333333333333333");
 		// --------------------------------------------------------------
 
 		/////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ public class MainWindow {
 		/// 
 		while(true)   //not nice but remember we do just want to keep looping till the end.  // this could be replaced by a thread but again we want to keep things simple 
 		{ 
-			//swing has timer class to help us time this but I'm writing my own, you can of course use the timer, but I want to set FPS and display it 
+			//swing has timer class to help us time this but I'm writing my own, you can of course udddde the timer, but I want to set FPS and display it 
 			
 			int TimeBetweenFrames =  1000 / TargetFPS;
 			long FrameCheck = System.currentTimeMillis() + (long) TimeBetweenFrames; 

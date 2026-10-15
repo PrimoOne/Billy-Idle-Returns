@@ -1,4 +1,6 @@
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.sound.sampled.*;
@@ -9,7 +11,11 @@ import util.Vector3f;
 
 public class Model {
 	
+	 public static boolean TESTING_LEVEL_ENABLED = true;
+
 	 private GameWorld gameWorld = new GameWorld();
+	 private GameObject testingEnemy;
+	 private boolean testingEnemyMovingRight = true;
 	
 	  
 	 public int Lives=3;
@@ -27,6 +33,11 @@ public class Model {
 	 public boolean enemygrounded=false;
 	 public boolean grounded=true;
 	 private boolean spaceWasPressed = false;
+	 private float playerHorizontalStartX;
+	 private float playerHorizontalDelta;
+	 private float playerYAtHorizontalMove;
+	 private float playerVerticalStartY;
+	 private boolean playerHorizontalCollisionEligible;
 
 	 boolean spawntutorialguy=true;
 	 boolean spawnguy=true;
@@ -78,7 +89,12 @@ public class Model {
 		
 		
 		PlaySound(background, -22.0f, 10000000);
-		BuildTutorial();
+		if(TESTING_LEVEL_ENABLED) {
+			testingEnemy = new LevelManager().populateTestingLevel(gameWorld, goblinmodel);
+			playingtutorial = false;
+		} else {
+			BuildTutorial();
+		}
 		
 
 		
@@ -390,18 +406,33 @@ public class Model {
 		
 		for (GameObject enemy : gameWorld.getEnemies()) 
 		{																										// Enemy Pathing Logic
-			if(enemy.getCentre().getX() < 10) {																 	// if Gobbo hits left side of the screen, turn off going left
-				enemygoleft=false;	
-			}
-			if(enemy.getCentre().getX() > 880) {																//if Gobbo hits right side of the screen, turn on going left
-				enemygoleft=true;
-			}
-			if(enemygoleft == true && enemygrounded == true) {
-				enemy.getCentre().ApplyVector(new Vector3f(-2,0,0));											//Apply going left condition into left/right movement
-			}
-			if(enemygoleft == false && enemygrounded == true) {
-				enemy.getCentre().ApplyVector(new Vector3f(2,0,0));
-				goblinmodel = "res/goblino_run_right.png";
+			if(enemy == testingEnemy) {
+				if(enemy.getCentre().getX() <= 674) {
+					testingEnemyMovingRight=true;
+				}
+				if(enemy.getCentre().getX() >= 786) {
+					testingEnemyMovingRight=false;
+				}
+				if(testingEnemyMovingRight == true && enemygrounded == true) {
+					enemy.getCentre().ApplyVector(new Vector3f(2,0,0));
+				}
+				if(testingEnemyMovingRight == false && enemygrounded == true) {
+					enemy.getCentre().ApplyVector(new Vector3f(-2,0,0));
+				}
+			} else {
+				if(enemy.getCentre().getX() < 10) {																 	// if Gobbo hits left side of the screen, turn off going left
+					enemygoleft=false;
+				}
+				if(enemy.getCentre().getX() > 880) {																//if Gobbo hits right side of the screen, turn on going left
+					enemygoleft=true;
+				}
+				if(enemygoleft == true && enemygrounded == true) {
+					enemy.getCentre().ApplyVector(new Vector3f(-2,0,0));											//Apply going left condition into left/right movement
+				}
+				if(enemygoleft == false && enemygrounded == true) {
+					enemy.getCentre().ApplyVector(new Vector3f(2,0,0));
+					goblinmodel = "res/goblino_run_right.png";
+				}
 			}
 			enemy.getCentre().ApplyVector(new Vector3f(0,-4,0));												//Apply gravity to the Gobbos
 			
@@ -448,69 +479,261 @@ public class Model {
 
 	private void tileLogic() {
 		grounded=false;
+		List<GameObject> topResponseTiles = new ArrayList<GameObject>();
+		List<GameObject> headBumpTiles = new ArrayList<GameObject>();
 		for (GameObject tile: gameWorld.getTiles()) {
-					
-					//COLLISION: huge thanks to Issac for helping me fix my collision
-			
-				
-					//Collision above the tile -> if Billy is standing on top of it, keep him on it
-					if(     (tile.getCentre().getY() - gameWorld.getPlayer().getCentre().getY() >0 && 															//if Billy is ABOVE the brick AND close to it
-							(tile.getCentre().getY()-2 - gameWorld.getPlayer().getCentre().getY()) < gameWorld.getPlayer().getHeight())										// 			AND
-							&&(( (gameWorld.getPlayer().getCentre().getX()-tile.getCentre().getX() 	) < tile.getWidth()	)									// player is not too far right or left
-							&& tile.getCentre().getX() - gameWorld.getPlayer().getCentre().getX() < gameWorld.getPlayer().getWidth()))										
-					{				
-								if(gameWorld.getPlayer().getVelocityY() <= 0.0f) {
-								gameWorld.getPlayer().getCentre().ApplyVector(new Vector3f(0,1,0));															// then push billy up a little (against gravity)
-								gameWorld.getPlayer().setVelocityY(0.0f);
-								grounded=true;
-								}
-					}
-					
-					//Collision under the tile -> if Billy bumps his head into it while jumping, push him down
-					if(     (gameWorld.getPlayer().getCentre().getY() - tile.getCentre().getY() > 0 &&															//if the brick is above billy AND close to it
-							(gameWorld.getPlayer().getCentre().getY() - tile.getCentre().getY()-1) < tile.getHeight())											// 		AND
-							&&(( (gameWorld.getPlayer().getCentre().getX()-tile.getCentre().getX() 	) < tile.getWidth()	) 									// player is not too far right or left
-							&& tile.getCentre().getX() - gameWorld.getPlayer().getCentre().getX() < gameWorld.getPlayer().getWidth()))	{ 									
-								if(gameWorld.getPlayer().getVelocityY() > 0.0f) {
-									gameWorld.getPlayer().getCentre().ApplyVector(new Vector3f(0,-5,0));																	// then push billy down, as if he hit his head on the ceiling
-									gameWorld.getPlayer().setVelocityY(0.0f);
-								}
-					}
-							
-					
-				//APPLY SAME TILE LOGIC TO ENEMIES  
-					for(GameObject enemy: gameWorld.getEnemies()) {
-						//Collision above the tile -> if goblin is standing on top of it, keep him on it
-						if(     (tile.getCentre().getY() - enemy.getCentre().getY() >0 && 
-								(tile.getCentre().getY()-2 - enemy.getCentre().getY()) < enemy.getHeight())
-								&&(( (enemy.getCentre().getX()-tile.getCentre().getX() 	) < tile.getWidth()	)
-								&& tile.getCentre().getX() - enemy.getCentre().getX() < enemy.getWidth()))	
-						{				
-							enemy.getCentre().ApplyVector(new Vector3f(0,4,0));
-							enemygrounded = true;
-						}
-						
-						if(     (enemy.getCentre().getY() - tile.getCentre().getY() > 0 &&
-								(enemy.getCentre().getY() - tile.getCentre().getY()-1) < tile.getHeight())
-								&&(( (enemy.getCentre().getX()-tile.getCentre().getX() 	) < tile.getWidth()	) 
-								&& tile.getCentre().getX() - enemy.getCentre().getX() < enemy.getWidth()))	{ 										
-							enemy.getCentre().ApplyVector(new Vector3f(0,-5,0));
-						}
-					}
+			resolvePlayerTileCollision(tile, topResponseTiles, headBumpTiles);
 
+			//APPLY SAME TILE LOGIC TO ENEMIES
+			for(GameObject enemy: gameWorld.getEnemies()) {
+				resolveEnemyTileCollision(tile, enemy);
+			}
 		}
+		if(playerHorizontalCollisionEligible) {
+			List<GameObject> actualLandingTiles = new ArrayList<GameObject>();
+			float previousFeet = playerVerticalStartY + gameWorld.getPlayer().getHeight();
+			float movedFeet = playerYAtHorizontalMove + gameWorld.getPlayer().getHeight();
+			for(GameObject tile: topResponseTiles) {
+				if(!headBumpTiles.contains(tile)
+						&& playerYAtHorizontalMove >= playerVerticalStartY
+						&& previousFeet >= tile.getCentre().getY() - 2
+						&& previousFeet <= tile.getCentre().getY() + 2
+						&& movedFeet >= tile.getCentre().getY() - 2) {
+					actualLandingTiles.add(tile);
+				}
+			}
+			resolvePlayerSideCollision(playerHorizontalStartX, playerHorizontalDelta,
+					topResponseTiles, headBumpTiles, actualLandingTiles);
+		}
+	}
+
+	private void resolvePlayerTileCollision(GameObject tile, List<GameObject> topResponseTiles, List<GameObject> headBumpTiles) {
+		//COLLISION: huge thanks to Issac for helping me fix my collision
+
+		//Collision above the tile -> if Billy is standing on top of it, keep him on it
+		if(     (tile.getCentre().getY() - gameWorld.getPlayer().getCentre().getY() >0 &&
+				(tile.getCentre().getY()-2 - gameWorld.getPlayer().getCentre().getY()) < gameWorld.getPlayer().getHeight())
+				&&(( (gameWorld.getPlayer().getCentre().getX()-tile.getCentre().getX() 	) < tile.getWidth()	)
+				&& tile.getCentre().getX() - gameWorld.getPlayer().getCentre().getX() < gameWorld.getPlayer().getWidth()))
+		{
+			if(gameWorld.getPlayer().getVelocityY() <= 0.0f) {
+				gameWorld.getPlayer().getCentre().ApplyVector(new Vector3f(0,1,0));
+				gameWorld.getPlayer().setVelocityY(0.0f);
+				grounded=true;
+				topResponseTiles.add(tile);
+			}
+		}
+
+		//Collision under the tile -> if Billy bumps his head into it while jumping, push him down
+		if(     (gameWorld.getPlayer().getCentre().getY() - tile.getCentre().getY() > 0 &&
+				(gameWorld.getPlayer().getCentre().getY() - tile.getCentre().getY()-1) < tile.getHeight())
+				&&(( (gameWorld.getPlayer().getCentre().getX()-tile.getCentre().getX() 	) < tile.getWidth()	)
+				&& tile.getCentre().getX() - gameWorld.getPlayer().getCentre().getX() < gameWorld.getPlayer().getWidth())) {
+			if(gameWorld.getPlayer().getVelocityY() > 0.0f) {
+				gameWorld.getPlayer().getCentre().ApplyVector(new Vector3f(0,-5,0));
+				gameWorld.getPlayer().setVelocityY(0.0f);
+				headBumpTiles.add(tile);
+			}
+		}
+	}
+
+	private void resolveEnemyTileCollision(GameObject tile, GameObject enemy) {
+		//Collision above the tile -> if goblin is standing on top of it, keep him on it
+		if(     (tile.getCentre().getY() - enemy.getCentre().getY() >0 &&
+				(tile.getCentre().getY()-2 - enemy.getCentre().getY()) < enemy.getHeight())
+				&&(( (enemy.getCentre().getX()-tile.getCentre().getX() 	) < tile.getWidth()	)
+				&& tile.getCentre().getX() - enemy.getCentre().getX() < enemy.getWidth()))
+		{
+			enemy.getCentre().ApplyVector(new Vector3f(0,4,0));
+			enemygrounded = true;
+		}
+
+		if(     (enemy.getCentre().getY() - tile.getCentre().getY() > 0 &&
+				(enemy.getCentre().getY() - tile.getCentre().getY()-1) < tile.getHeight())
+				&&(( (enemy.getCentre().getX()-tile.getCentre().getX() 	) < tile.getWidth()	)
+				&& tile.getCentre().getX() - enemy.getCentre().getX() < enemy.getWidth())) {
+			enemy.getCentre().ApplyVector(new Vector3f(0,-5,0));
+		}
+	}
+
+	private void resolvePlayerSideCollision(float startX, float deltaX, List<GameObject> topResponseTiles,
+			List<GameObject> headBumpTiles, List<GameObject> actualLandingTiles) {
+		GameObject player = gameWorld.getPlayer();
+		float currentX = player.getCentre().getX();
+		float currentY = player.getCentre().getY();
+		float playerWidth = player.getWidth();
+		float playerHeight = player.getHeight();
+		List<GameObject> blockingTiles = new ArrayList<GameObject>();
+		List<GameObject> candidateTiles = new ArrayList<GameObject>();
+		List<Float> candidateXs = new ArrayList<Float>();
+		List<Boolean> recoveryCandidates = new ArrayList<Boolean>();
+
+		for(GameObject tile: gameWorld.getTiles()) {
+			float tileX = tile.getCentre().getX();
+			float tileY = tile.getCentre().getY();
+			if(!(currentY < tileY + tile.getHeight()
+					&& currentY + playerHeight > tileY)) {
+				continue;
+			}
+
+			boolean topResponse = topResponseTiles.contains(tile);
+			boolean headBump = headBumpTiles.contains(tile);
+			if(topResponse && !headBump
+					&& (actualLandingTiles.contains(tile)
+						|| isSupportedStep(tile, startX, deltaX, playerVerticalStartY))) {
+				continue;
+			}
+			blockingTiles.add(tile);
+
+			float tileRight = tileX + tile.getWidth();
+			boolean sweptAcrossFace = false;
+			boolean recoveringOverlap = false;
+			float candidateX = 0.0f;
+			if(deltaX > 0.0f) {
+				if(startX + playerWidth <= tileX
+						&& currentX + playerWidth > tileX) {
+					sweptAcrossFace = true;
+					candidateX = tileX - playerWidth;
+				} else {
+					float startOverlap = Math.min(startX + playerWidth, tileRight) - Math.max(startX, tileX);
+					float endOverlap = Math.min(currentX + playerWidth, tileRight) - Math.max(currentX, tileX);
+					if(startOverlap > 0.0f && endOverlap > startOverlap) {
+						recoveringOverlap = true;
+						candidateX = tileX - playerWidth;
+					}
+				}
+			} else if(deltaX < 0.0f) {
+				if(startX >= tileRight
+						&& currentX < tileRight) {
+					sweptAcrossFace = true;
+					candidateX = tileRight;
+				} else {
+					float startOverlap = Math.min(startX + playerWidth, tileRight) - Math.max(startX, tileX);
+					float endOverlap = Math.min(currentX + playerWidth, tileRight) - Math.max(currentX, tileX);
+					if(startOverlap > 0.0f && endOverlap > startOverlap) {
+						recoveringOverlap = true;
+						candidateX = tileRight;
+					}
+				}
+			}
+			if(sweptAcrossFace || recoveringOverlap) {
+				candidateTiles.add(tile);
+				candidateXs.add(candidateX);
+				recoveryCandidates.add(recoveringOverlap);
+			}
+		}
+
+		int selectedCandidate = -1;
+		for(int pass=0; pass<2 && selectedCandidate<0; pass++) {
+			for(int i=0; i<candidateXs.size(); i++) {
+				if(recoveryCandidates.get(i) != (pass == 1)) {
+					continue;
+				}
+				float candidateX = candidateXs.get(i);
+				if(!isSafeSideCorrection(candidateX, candidateTiles.get(i), currentX, currentY,
+						playerWidth, blockingTiles, actualLandingTiles)) {
+					continue;
+				}
+				if(selectedCandidate < 0
+						|| (deltaX > 0.0f && ((pass == 0 && candidateX < candidateXs.get(selectedCandidate))
+							|| (pass == 1 && candidateX > candidateXs.get(selectedCandidate))))
+						|| (deltaX < 0.0f && ((pass == 0 && candidateX > candidateXs.get(selectedCandidate))
+							|| (pass == 1 && candidateX < candidateXs.get(selectedCandidate))))) {
+					selectedCandidate = i;
+				}
+			}
+		}
+
+		if(selectedCandidate >= 0) {
+			float correctionX = candidateXs.get(selectedCandidate);
+			player.getCentre().ApplyVector(new Vector3f(correctionX - currentX,0,0));
+		}
+	}
+
+	private boolean isSupportedStep(GameObject step, float startX, float deltaX, float previousY) {
+		float stepX = step.getCentre().getX();
+		float stepY = step.getCentre().getY();
+		float previousFeet = previousY + gameWorld.getPlayer().getHeight();
+		if(deltaX == 0.0f) {
+			return false;
+		}
+
+		for(GameObject support: gameWorld.getTiles()) {
+			if(support == step
+					|| Math.abs(previousFeet - support.getCentre().getY()) > 2.0f
+					|| support.getCentre().getY() - stepY < 0.0f
+					|| support.getCentre().getY() - stepY > 16.0f
+					|| !(startX < support.getCentre().getX() + support.getWidth()
+						&& startX + gameWorld.getPlayer().getWidth() > support.getCentre().getX())) {
+				continue;
+			}
+
+			if(deltaX > 0.0f
+					&& support.getCentre().getX() + support.getWidth() == stepX
+					&& startX < stepX + step.getWidth()
+					&& startX + deltaX + gameWorld.getPlayer().getWidth() > stepX) {
+				return true;
+			}
+			if(deltaX < 0.0f
+					&& support.getCentre().getX() == stepX + step.getWidth()
+					&& startX + gameWorld.getPlayer().getWidth() > stepX
+					&& startX + deltaX < stepX + step.getWidth()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isSafeSideCorrection(float candidateX, GameObject candidateTile, float currentX, float currentY,
+			float playerWidth, List<GameObject> blockingTiles, List<GameObject> actualLandingTiles) {
+		float playerRight = candidateX + playerWidth;
+		for(GameObject tile: blockingTiles) {
+			float tileX = tile.getCentre().getX();
+			float tileRight = tileX + tile.getWidth();
+			if(candidateX < tileRight && playerRight > tileX) {
+				return false;
+			}
+
+			boolean sameFace = tile.getCentre().getX() == candidateTile.getCentre().getX()
+					&& tile.getWidth() == candidateTile.getWidth();
+			if(!sameFace) {
+				float pathLeft = Math.min(candidateX, currentX);
+				float pathRight = Math.max(candidateX, currentX) + playerWidth;
+				if(pathLeft < tileRight && pathRight > tileX) {
+					return false;
+				}
+			}
+		}
+
+		if(!actualLandingTiles.isEmpty()) {
+			boolean keepsSupport = false;
+			for(GameObject support: actualLandingTiles) {
+				if(candidateX < support.getCentre().getX() + support.getWidth()
+						&& playerRight > support.getCentre().getX()) {
+					keepsSupport = true;
+					break;
+				}
+			}
+			if(!keepsSupport) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	
 	
 	private void spikeLogic() {
 		for (GameObject spike: gameWorld.getSpikes()) {		
+					float spikeX = spike.getCentre().getX() + 4;
+					float spikeY = spike.getCentre().getY() + 4;
+					float spikeWidth = spike.getWidth() - 8;
 				
 					//Collision above the tile -> if Billy is standing on top of it, keep him on it
-					if(     (spike.getCentre().getY() - gameWorld.getPlayer().getCentre().getY() >0 && 															
-							(spike.getCentre().getY()-2 - gameWorld.getPlayer().getCentre().getY()) < gameWorld.getPlayer().getHeight())									
-							&&(( (gameWorld.getPlayer().getCentre().getX()-spike.getCentre().getX() 	) < spike.getWidth()	)									
-							&& spike.getCentre().getX() - gameWorld.getPlayer().getCentre().getX() < gameWorld.getPlayer().getWidth()))										
+					if(     (spikeY - gameWorld.getPlayer().getCentre().getY() >0 &&
+							(spikeY-2 - gameWorld.getPlayer().getCentre().getY()) < gameWorld.getPlayer().getHeight())
+							&&(( (gameWorld.getPlayer().getCentre().getX()-spikeX 	) < spikeWidth	)
+							&& spikeX - gameWorld.getPlayer().getCentre().getX() < gameWorld.getPlayer().getWidth()))
 					{			
 						if(playinglevel3==false && GameOver==false) {														//Player hitting the bottom of the screen
 							gameWorld.getPlayer().setCentre(new Point3f(10,850,0));
@@ -538,6 +761,8 @@ public class Model {
 	//##################################################################################################################################################################
 
 	private void playerLogic() {
+		playerHorizontalCollisionEligible = false;
+		playerHorizontalDelta = 0.0f;
 	
 		if(gameWorld.getPlayer().getCentre().getY() > 890 && playinglevel3==true && GameOver==false) {														//Special condition for lvl 3
 			gameWorld.getPlayer().setCentre(new Point3f(10, 110, 0));
@@ -545,6 +770,7 @@ public class Model {
 			Lives--;
 			PlaySound(billyhit, -15.0f, 10000);
 		}
+		playerVerticalStartY = gameWorld.getPlayer().getCentre().getY();
 	
 		boolean spacePressed = Controller.getInstance().isKeySpacePressed();
 		boolean jumpPressed = spacePressed && !spaceWasPressed;
@@ -555,15 +781,23 @@ public class Model {
 		gameWorld.getPlayer().getCentre().ApplyVector(new Vector3f(0, gameWorld.getPlayer().getVelocityY(), 0));
 		spaceWasPressed = spacePressed;
 	
+		playerHorizontalStartX = gameWorld.getPlayer().getCentre().getX();
+		playerYAtHorizontalMove = gameWorld.getPlayer().getCentre().getY();
+		boolean movedLeft = false;
+		boolean movedRight = false;
 		if(Controller.getInstance().isKeyAPressed())												//PESS A or a
 		{
+			movedLeft = true;
 			gameWorld.getPlayer().getCentre().ApplyVector( new Vector3f(-4,0,0)); 
 		}
 		
 		if(Controller.getInstance().isKeyDPressed())												//PESS D or d
 		{
+			movedRight = true;
 			gameWorld.getPlayer().getCentre().ApplyVector( new Vector3f(4,0,0));
 		}
+		playerHorizontalDelta = gameWorld.getPlayer().getCentre().getX() - playerHorizontalStartX;
+		playerHorizontalCollisionEligible = movedLeft != movedRight && playerHorizontalDelta != 0.0f;
 		
 		if(Controller.getInstance().isKeyWPressed())												//PESS W or w
 		{
@@ -587,11 +821,13 @@ public class Model {
 		
 		
 		if(Controller.getInstance().isKeyQPressed() && gemcount >=6) {												//PESS Q or q
+			playerHorizontalCollisionEligible = false;
 			gameWorld.getPlayer().setCentre(new Point3f (gameWorld.getPlayer().getCentre().getX() - 200 , gameWorld.getPlayer().getCentre().getY(),0) );
 			Controller.getInstance().setKeyQPressed(false);
 		}
 		
 		if(Controller.getInstance().isKeyEPressed() && gemcount >=6) {												//PESS E or e
+			playerHorizontalCollisionEligible = false;
 			gameWorld.getPlayer().setCentre(new Point3f (gameWorld.getPlayer().getCentre().getX() + 200 , gameWorld.getPlayer().getCentre().getY(),0) );
 			Controller.getInstance().setKeyEPressed(false);
 		}
@@ -736,63 +972,7 @@ public class Model {
 
 	if(buildlevelone==true) {
 		PlaySound(win, -10.0f, 10000);
-		 int tilecounter=0, currentx=0, currenty=0;
-		 gameWorld.getGem().add(new GameObject("res/gemgreen.png", 32, 32, new Point3f(900,600,0)));
-		 gameWorld.getGem().add(new GameObject("res/gemgreen.png", 32, 32, new Point3f(344,500,0)));
-		 gameWorld.getGem().add(new GameObject("res/teleport.png", 40, 50, new Point3f(76,356,0)));
-		 gameWorld.getSign().add(new GameObject("res/exitsign.png", 50, 50, new Point3f(900, 126, 0)));
-		
-		 gameWorld.getEnemies().add(new GameObject(goblinmodel,45,45,new Point3f(950,880,0)));
-		 gameWorld.getEnemies().add(new GameObject(goblinmodel,45,45,new Point3f(950,150,0)));
-		 
-			 tilecounter=0; currentx=0; currenty=928;
-			for(tilecounter=0; tilecounter < 31; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;
-			}
-			
-			currentx= 0; currenty= 810;
-			for(tilecounter=0; tilecounter < 26; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty,0)));
-				currentx+=32;
-			}
-			
-			tilecounter=0; currentx=150; currenty=715;
-			for(tilecounter=0; tilecounter < 6; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=96;
-				currenty-=40;
-			}
-			
-			tilecounter=0; currentx= 0; currenty= 410;
-			for(tilecounter=0; tilecounter < 23 ; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx,  currenty,0)));
-				currentx+=32;
-			}
-			
-			//"stairs"
-			tilecounter=0; currentx=150; currenty=270;
-			for(tilecounter=0; tilecounter < 6; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty,0)));
-				currentx+=32;
-				currenty-=16;
-			}
-			
-			tilecounter=0; currentx=340; currenty=174;
-			for(tilecounter=0; tilecounter < 5; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;	
-			}
-			
-			tilecounter=0; currentx=766; currenty=174;
-			for(tilecounter=0; tilecounter < 7; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;	
-			}
-			
-			
+		new LevelManager().populateLevelOne(gameWorld, goblinmodel);
 		}
 		playinglevel1=true;	
 		buildlevelone=false;																									//set the build boolean to false so that it only builds once
@@ -807,74 +987,7 @@ public class Model {
 	if(buildleveltwo==true) {
 		PlaySound(win, -10.0f, 10000);
 		playinglevel2=true;	
-		
-		 int tilecounter=0, currentx=0, currenty=0;
-		 gameWorld.getGem().add(new GameObject("res/gemgreen.png", 32, 32, new Point3f(900,550,0)));
-		 gameWorld.getSign().add(new GameObject("res/exitsign.png", 50, 50, new Point3f(900, 135, 0)));
-		 gameWorld.getSign().add(new GameObject("res/door.png", 45, 50, new Point3f(0, 429, 0)));
-		 gameWorld.getSign().add(new GameObject("res/door.png", 45, 50, new Point3f(0, 141, 0)));
-		 gameWorld.getGem().add(new GameObject("res/key.png", 45, 50, new Point3f(150, 600, 0)));
-		 	
-		 	//block 1
-			tilecounter=0; currentx=0; currenty=928;
-			for(tilecounter=0; tilecounter < 3; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;
-			}
-			//Spikes
-			tilecounter=0; currentx=910; currenty=928;
-			for(tilecounter=0; tilecounter < 26; tilecounter++) {
-				gameWorld.getSpikes().add(new GameObject("res/spike.png", 32, 32, new Point3f(currentx, currenty,0)));
-				currentx-=32;
-			}
-			//block2
-			tilecounter=0; currentx=160; currenty=820;
-			for(tilecounter=0; tilecounter < 3; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;
-			}
-			//block3
-			tilecounter=0; currentx=424; currenty=750;
-			for(tilecounter=0; tilecounter < 5; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;
-			}
-			//block4
-			tilecounter=0; currentx=710; currenty=680;
-			for(tilecounter=0; tilecounter < 1; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;
-			}
-			//block5
-			tilecounter=0; currentx=820; currenty=610;
-			for(tilecounter=0; tilecounter < 5; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;
-			}
-			//block6
-			tilecounter=0; currentx=720; currenty=530;
-			for(tilecounter=0; tilecounter < 5; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx-=32;
-			}
-			//block7
-			tilecounter=0; currentx=424; currenty=590;
-			for(tilecounter=0; tilecounter < 5; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx-=32;
-			}
-			//block8
-			tilecounter=0; currentx=140; currenty=480;
-			for(tilecounter=0; tilecounter < 6; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx-=32;
-			}
-			//block9
-			tilecounter=0; currentx=0; currenty=192;
-			for(tilecounter=0; tilecounter < 31; tilecounter++) {
-				gameWorld.getTiles().add(new GameObject("res/brick.png", 32, 32, new Point3f(currentx, currenty, 0)));
-				currentx+=32;
-			}		
+		new LevelManager().populateLevelTwo(gameWorld);
 		}
 
 		buildleveltwo=false;
